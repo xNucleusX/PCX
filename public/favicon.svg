@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>RxLookup Icon</title>
+  <defs>
+    <linearGradient id="lookupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#lookupGrad)" />
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="230" cy="230" r="90" stroke-width="24" />
+    <line x1="294" y1="294" x2="380" y2="380" stroke-width="32" />
+    <line x1="230" y1="190" x2="230" y2="270" stroke-width="16" />
+    <line x1="190" y1="230" x2="270" y2="230" stroke-width="16" />
+  </g>
+</svg>
