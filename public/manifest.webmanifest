@@ -1,0 +1,15 @@
+{
+  "name": "RxLookup",
+  "short_name": "RxLookup",
+  "lang": "en",
+  "description": "Search and access the Malaysian drug formulary instantly, even without an internet connection.",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#3B82F6",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
