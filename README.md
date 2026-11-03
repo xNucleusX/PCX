@@ -76,7 +76,7 @@ Vercel project (root = this repo, `.vercelignore` keeps it to `api/` only):
 
 | Env var | Value |
 | --- | --- |
-| `GH_TOKEN` | fine-grained PAT, **Contents: read and write**, this repo only |
+| `GH_TOKEN` (or `PCX_GH_Token`) | fine-grained PAT, **Contents: read and write**, this repo only |
 | `SYNC_SECRET` | the sync password |
 | `ALLOWED_ORIGIN` | `https://xnucleusx.github.io` (optional, this is the default) |
 
