@@ -28,6 +28,16 @@ const gh = async (path, init = {}) => {
   return res.json()
 }
 
+// A blob read that returns the decoded JSON. The raw media type avoids pulling
+// ~13 MB of base64 through JSON.parse twice.
+const ghRaw = async (path) => {
+  const res = await fetch(`https://api.github.com${path}`, {
+    headers: { authorization: `Bearer ${token()}`, accept: 'application/vnd.github.raw' },
+  })
+  if (!res.ok) throw new Error(`GitHub ${path} -> ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN)
   res.setHeader('Access-Control-Allow-Headers', 'content-type, x-sync-secret')
@@ -49,12 +59,19 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'Upstream payload malformed or empty' })
     }
 
-    // Current committed copy, read through the raw host (the Contents API caps at ~1 MB).
-    const curRes = await fetch(
-      `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${DATA_PATH}`,
-      { headers: { 'cache-control': 'no-cache' } },
-    )
-    const current = curRes.ok ? await curRes.json() : { drugs: [] }
+    // Current committed copy. Read through the Git Data API, NOT
+    // raw.githubusercontent.com: that host is CDN-cached for minutes, so a
+    // second sync would diff against a stale copy and re-commit ~10 MB. The
+    // Contents API is no good either (caps near 1 MB), but a raw blob read is
+    // fresh and allowed up to 100 MB.
+    const ref = await gh(`/repos/${REPO}/git/ref/heads/${BRANCH}`)
+    const parentSha = ref.object.sha
+    const parentCommit = await gh(`/repos/${REPO}/git/commits/${parentSha}`)
+    const tree = await gh(`/repos/${REPO}/git/trees/${parentCommit.tree.sha}?recursive=1`)
+    const blobSha = tree.tree.find((e) => e.path === DATA_PATH)?.sha
+    const current = blobSha
+      ? await ghRaw(`/repos/${REPO}/git/blobs/${blobSha}`)
+      : { drugs: [] }
 
     const { added, removed, changed, hasRealChange } = diffDrugs(current, fresh)
     // `modified`, not `changed`: the top-level `changed` flag is a boolean and a
@@ -71,10 +88,6 @@ export default async function handler(req, res) {
 
     // Commit via the Git Data API: blob -> tree -> commit -> ref. The Contents
     // API would reject a ~10 MB base64 body.
-    const ref = await gh(`/repos/${REPO}/git/ref/heads/${BRANCH}`)
-    const parentSha = ref.object.sha
-    const parentCommit = await gh(`/repos/${REPO}/git/commits/${parentSha}`)
-
     const blob = await gh(`/repos/${REPO}/git/blobs`, {
       method: 'POST',
       body: JSON.stringify({
@@ -82,7 +95,7 @@ export default async function handler(req, res) {
         encoding: 'base64',
       }),
     })
-    const tree = await gh(`/repos/${REPO}/git/trees`, {
+    const newTree = await gh(`/repos/${REPO}/git/trees`, {
       method: 'POST',
       body: JSON.stringify({
         base_tree: parentCommit.tree.sha,
@@ -96,7 +109,7 @@ export default async function handler(req, res) {
           `Sync drug data from Rx Note (${counts.totalDrugs} drugs)\n\n` +
           `+${counts.added} / -${counts.removed} / ~${counts.modified}\n` +
           `upstream generatedAt: ${counts.generatedAt}`,
-        tree: tree.sha,
+        tree: newTree.sha,
         parents: [parentSha],
       }),
     })
