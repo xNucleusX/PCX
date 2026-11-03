@@ -1,4 +1,5 @@
-// Guard checks for the sync endpoint: node api/sync.test.mjs
+// Guard checks for the sync endpoint: node api/_sync.test.mjs
+// Underscore-prefixed so Vercel does not deploy it as a route.
 // Verifies auth/method rejection without touching GitHub.
 import assert from 'node:assert/strict'
 
