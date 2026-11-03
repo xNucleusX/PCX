@@ -11,12 +11,14 @@ const REPO = process.env.GH_REPO ?? 'xNucleusX/PCX'
 const BRANCH = process.env.GH_BRANCH ?? 'main'
 // Pages is a separate origin from this function, so CORS is required.
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? 'https://xnucleusx.github.io'
+// Vercel will not rename a Sensitive env var's key, so accept either spelling.
+export const token = () => process.env.GH_TOKEN || process.env.PCX_GH_Token
 
 const gh = async (path, init = {}) => {
   const res = await fetch(`https://api.github.com${path}`, {
     ...init,
     headers: {
-      authorization: `Bearer ${process.env.GH_TOKEN}`,
+      authorization: `Bearer ${token()}`,
       accept: 'application/vnd.github+json',
       'content-type': 'application/json',
       ...init.headers,
@@ -37,7 +39,7 @@ export default async function handler(req, res) {
   if (!process.env.SYNC_SECRET || req.headers['x-sync-secret'] !== process.env.SYNC_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
-  if (!process.env.GH_TOKEN) return res.status(500).json({ error: 'GH_TOKEN not configured' })
+  if (!token()) return res.status(500).json({ error: 'GH_TOKEN not configured' })
 
   try {
     const upRes = await fetch(UPSTREAM, { headers: { 'user-agent': 'pcx-sync' } })

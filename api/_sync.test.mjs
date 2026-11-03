@@ -5,8 +5,9 @@ import assert from 'node:assert/strict'
 
 process.env.SYNC_SECRET = 'test-secret'
 delete process.env.GH_TOKEN
+delete process.env.PCX_GH_Token
 
-const { default: handler } = await import('./sync.mjs')
+const { default: handler, token } = await import('./sync.mjs')
 
 const mockRes = () => {
   const r = { code: 0, body: null, headers: {}, ended: false }
@@ -37,6 +38,17 @@ assert.equal((await call({ method: 'POST', headers: { 'x-sync-secret': 'nope' } 
   const res = await call({ method: 'POST', headers: { 'x-sync-secret': 'test-secret' } })
   assert.equal(res.code, 500)
   assert.match(res.body.error, /GH_TOKEN/)
+}
+
+// Vercel will not rename a Sensitive env var, so both spellings must resolve.
+// Checked directly rather than through the handler, which would hit the network.
+{
+  process.env.PCX_GH_Token = 'alt'
+  assert.equal(token(), 'alt', 'PCX_GH_Token must be accepted')
+  process.env.GH_TOKEN = 'canonical'
+  assert.equal(token(), 'canonical', 'GH_TOKEN wins when both are set')
+  delete process.env.GH_TOKEN
+  delete process.env.PCX_GH_Token
 }
 
 // With SYNC_SECRET unset the endpoint must refuse everything, not open up.
