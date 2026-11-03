@@ -1,5 +1,5 @@
 {
-  "name": "rxlookup",
+  "name": "lautanpoison",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build && cp dist/index.html dist/404.html",
     "lint": "oxlint",
+    "test": "node api/_diff.test.mjs && node api/sync.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

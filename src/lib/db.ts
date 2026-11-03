@@ -1,12 +1,12 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { Drug } from './types'
 
-const DB_NAME = 'rxlookup-db'
+const DB_NAME = 'pcx-db'
 const DB_VERSION = 1
 const DRUGS_STORE = 'drugs'
 const META_STORE = 'meta'
 
-interface RxLookupDB extends DBSchema {
+interface LautanPoisonDB extends DBSchema {
   drugs: {
     key: string
     value: Drug
@@ -17,11 +17,11 @@ interface RxLookupDB extends DBSchema {
   }
 }
 
-let dbPromise: Promise<IDBPDatabase<RxLookupDB>> | null = null
+let dbPromise: Promise<IDBPDatabase<LautanPoisonDB>> | null = null
 
 function getDB() {
   if (!dbPromise) {
-    dbPromise = openDB<RxLookupDB>(DB_NAME, DB_VERSION, {
+    dbPromise = openDB<LautanPoisonDB>(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains(DRUGS_STORE)) {
           db.createObjectStore(DRUGS_STORE, { keyPath: 'id' })

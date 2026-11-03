@@ -27,6 +27,9 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # Repo variable (Settings -> Secrets and variables -> Actions -> Variables).
+          # Public by design: it is only the function URL, never the sync password.
+          VITE_SYNC_API: ${{ vars.VITE_SYNC_API }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,0 +1,8 @@
+# Vercel hosts only /api/sync — the site and its 10 MB data file live on GitHub Pages.
+src
+public
+dist
+index.html
+tsconfig*.json
+vite.config.ts
+.github

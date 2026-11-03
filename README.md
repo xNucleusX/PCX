@@ -1,4 +1,4 @@
-# RxLookup
+# Lautan Poison
 
 Offline-first Malaysian drug formulary lookup — search drugs by generic name, synonyms, or brand name.
 
@@ -52,6 +52,41 @@ The drug formulary lives at [`public/data/initial-drugs.json`](public/data/initi
 ```
 
 To add or update drugs, edit this file (or replace it with a generated export) and bump `metadata.generatedAt`. Rich-text fields are sanitized with DOMPurify before rendering, so basic HTML (`<p>`, `<ul>`, `<strong>`, etc.) is safe to include.
+
+## Syncing from Rx Note
+
+The cloud-download button in the header pulls the latest data from
+[lookup.myrxnote.com](https://lookup.myrxnote.com/data/drugs.json) and commits it to this repo,
+which triggers the Pages deploy. The site is static, so the push happens in a Vercel function
+(`api/sync.mjs`) — a GitHub token can never be shipped in a public bundle.
+
+Data is only committed when it really changed. `lastUpdated` is re-stamped on every upstream
+build and `mdc`/`neml` are `null` on every row, so those three fields are ignored when diffing
+(`api/_diff.mjs`); otherwise every press would commit ~10 MB for nothing.
+
+**The sync password is not access control.** It stops the public endpoint being used as a write
+button on this repo. It is one shared secret in `localStorage`, not per-user auth.
+
+Each committed change adds ~10 MB to git history permanently. Press when upstream actually
+moves, not on a frequent schedule.
+
+### Setup
+
+Vercel project (root = this repo, `.vercelignore` keeps it to `api/` only):
+
+| Env var | Value |
+| --- | --- |
+| `GH_TOKEN` | fine-grained PAT, **Contents: read and write**, this repo only |
+| `SYNC_SECRET` | the sync password |
+| `ALLOWED_ORIGIN` | `https://xnucleusx.github.io` (optional, this is the default) |
+
+GitHub repo → Settings → Secrets and variables → Actions → **Variables**:
+
+| Variable | Value |
+| --- | --- |
+| `VITE_SYNC_API` | `https://<your-vercel-project>.vercel.app/api/sync` |
+
+Then re-run the Pages workflow so the button picks up the URL. Checks: `npm test`.
 
 ## Deploying to GitHub Pages
 

@@ -2,6 +2,7 @@ import { Menu } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ThemeToggle } from './ThemeToggle'
 import { SyncStatus } from './SyncStatus'
+import { RepoSync } from './RepoSync'
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -21,14 +22,15 @@ export function Header({ onMenuClick }: HeaderProps) {
           <span className="sr-only">Toggle menu</span>
         </button>
         <Link to="/" className="group mr-6 flex items-center space-x-2">
-          <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="RxLookup logo" className="h-6 w-6" />
+          <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="Lautan Poison logo" className="h-6 w-6" />
           <span className="text-2xl font-extrabold text-foreground transition-colors group-hover:text-primary sm:inline-block">
-            RxLookup
+            Lautan Poison
           </span>
         </Link>
         <div className="flex-1" />
         <ThemeToggle />
         <SyncStatus />
+        <RepoSync />
       </div>
     </header>
   )

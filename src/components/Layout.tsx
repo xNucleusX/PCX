@@ -15,7 +15,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </main>
       </div>
       <footer className="border-t border-border py-4 text-center text-sm text-muted-foreground">
-        Copyright © {new Date().getFullYear()} RxLookup
+        Lautan Poison
       </footer>
     </div>
   )
